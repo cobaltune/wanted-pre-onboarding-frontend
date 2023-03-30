@@ -1,7 +1,10 @@
-const Signup = () => {
+import React from 'react';
+import styled from 'styled-components';
+
+const Signin = () => {
   return (
     <div>
-      <h1>회원가입</h1>
+      <h1>로그인</h1>
 
       <form>
         <label for='email'>이메일</label>
@@ -24,10 +27,10 @@ const Signup = () => {
 
         <input data-testid='signin-button' type='submit' value='로그인' />
       </form>
-      <h5>이미 회원이신가요?</h5>
-      <button data-testid='signup-button'>로그인하기</button>
+      <h5>아직 회원이 아니신가요?</h5>
+      <button data-testid='signup-button'>가입하기</button>
     </div>
   );
 };
 
-export default Signup;
+export default Signin;
