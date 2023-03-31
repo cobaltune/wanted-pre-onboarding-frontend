@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 const Wrapper = styled.div`
@@ -65,11 +65,33 @@ const StyledButton = styled.button`
 `;
 
 const Signin = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (validateEmail(email) && validatePassword(password)) {
+      // Submit the form
+    } else {
+      setError('Invalid email or password');
+    }
+  };
+
+  const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(String(email).toLowerCase());
+  };
+
+  const validatePassword = (password) => {
+    return password.length >= 8;
+  };
+
   return (
     <Wrapper>
       <Title>로그인</Title>
 
-      <Form>
+      <Form onSubmit={handleSubmit}>
         <Form__row>
           <Label for='email'>이메일</Label>
           <StyledInput
@@ -78,6 +100,8 @@ const Signin = () => {
             type='email'
             placeholder='이메일을 입력해주세요.'
             required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
         </Form__row>
         <Form__row>
@@ -89,12 +113,15 @@ const Signin = () => {
             minlength='8'
             placeholder='8자리 이상 비밀번호를 입력해주세요.'
             required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
         </Form__row>
 
         <StyledButton data-testid='signin-button' type='submit'>
           로그인
         </StyledButton>
+        {error && <p>{error}</p>}
       </Form>
       <h5>아직 회원이 아니신가요?</h5>
       <button data-testid='signup-button'>가입하기</button>
