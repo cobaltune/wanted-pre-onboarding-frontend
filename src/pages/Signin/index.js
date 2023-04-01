@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
+import jwtDecode, { JwtPayload } from 'jwt-decode';
+
 const Wrapper = styled.div`
   width: 100%;
   height: 100vh;
@@ -14,11 +16,6 @@ const Title = styled.h1`
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 32px;
-`;
-
-const Form = styled.div`
-  display: flex;
-  flex-direction: column;
 `;
 
 const Form__row = styled.div`
@@ -48,81 +45,93 @@ const StyledInput = styled.input`
 
 const StyledButton = styled.button`
   padding: 10px;
-  /* color: #dadce0;
-  background-color: #f2f5ff; */
-  color: #fff;
-  background-color: #3466ff;
-  border: none;
+  color: #3466ff;
+  background-color: #fff;
+  border: 1px solid #3466ff;
   border-radius: 5px;
   font-size: 14px;
   cursor: pointer;
   margin-bottom: 20px;
 
-  /* &:hover {
+  &:hover {
     color: #fff;
     background-color: #3466ff;
-  } */
+    border: none;
+  }
 `;
 
 const Signin = () => {
+  const jwt_decode = require('jwt-decode');
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validateEmail(email) && validatePassword(password)) {
-      // Submit the form
+
+    const response = await fetch(
+      'https://pre-onboarding-selection-task.shop/',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      },
+    );
+
+    if (response.ok) {
+      const { token } = await response.json();
+      localStorage.setItem('jwtToken', token);
+      const decoded = jwt_decode(token);
+      console.log(decoded);
     } else {
       setError('Invalid email or password');
     }
   };
 
-  const validateEmail = (email) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(String(email).toLowerCase());
-  };
-
-  const validatePassword = (password) => {
-    return password.length >= 8;
-  };
-
   return (
     <Wrapper>
       <Title>로그인</Title>
-
-      <Form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit}>
         <Form__row>
-          <Label for='email'>이메일</Label>
-          <StyledInput
-            data-testid='email-input'
-            id='email'
-            type='email'
-            placeholder='이메일을 입력해주세요.'
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+          <Label>
+            이메일
+            <StyledInput
+              data-testid='email-input'
+              type='email'
+              placeholder='이메일을 입력해주세요.'
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </Label>
         </Form__row>
         <Form__row>
-          <Label for='password'>비밀번호</Label>
-          <StyledInput
-            data-testid='password-input'
-            id='password'
-            type='password'
-            minlength='8'
-            placeholder='8자리 이상 비밀번호를 입력해주세요.'
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <Label>
+            비밀번호
+            <StyledInput
+              data-testid='password-input'
+              type='password'
+              minlength='8'
+              placeholder='8자리 이상 비밀번호를 입력해주세요.'
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </Label>
         </Form__row>
-
-        <StyledButton data-testid='signin-button' type='submit'>
+        {error && <p>{error}</p>}
+        <StyledButton
+          data-testid='signin-button'
+          type='submit'
+          disabled={setError}
+        >
           로그인
         </StyledButton>
-        {error && <p>{error}</p>}
-      </Form>
+      </form>
+
       <h5>아직 회원이 아니신가요?</h5>
       <button data-testid='signup-button'>가입하기</button>
     </Wrapper>
