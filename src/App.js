@@ -12,8 +12,8 @@ const App = () => {
     <div className='App'>
       <GlobalStyles />
       <Routes>
-        <Route path='/' element={<Signin />} />
-        <Route path='/signup' element={<Signup />} />
+        <Route path='/' element={<Signup />} />
+        <Route path='/signup' element={<Signin />} />
         <Route path='/todo' element={<Todo />} />
       </Routes>
     </div>

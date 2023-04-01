@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-
-import jwtDecode, { JwtPayload } from 'jwt-decode';
+import axios from 'axios';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -18,76 +17,26 @@ const Title = styled.h1`
   margin-bottom: 32px;
 `;
 
-const Form__row = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-`;
-
-const Label = styled.h4`
-  font-size: 14px;
-  margin-right: 20px;
-`;
-
-const StyledInput = styled.input`
-  width: 300px;
-  padding: 10px;
-  border: 1px solid #dadce0;
-  border-radius: 5px;
-  font-size: 14px;
-
-  &:focus {
-    outline: none;
-    background-color: #f2f5ff;
-  }
-`;
-
-const StyledButton = styled.button`
-  padding: 10px;
-  color: #3466ff;
-  background-color: #fff;
-  border: 1px solid #3466ff;
-  border-radius: 5px;
-  font-size: 14px;
-  cursor: pointer;
-  margin-bottom: 20px;
-
-  &:hover {
-    color: #fff;
-    background-color: #3466ff;
-    border: none;
-  }
-`;
-
 const Signin = () => {
-  const jwt_decode = require('jwt-decode');
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
+  const APIURL = 'https://pre-onboarding-selection-task.shop';
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const response = await fetch(
-      'https://pre-onboarding-selection-task.shop/',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      },
-    );
-
-    if (response.ok) {
-      const { token } = await response.json();
-      localStorage.setItem('jwtToken', token);
-      const decoded = jwt_decode(token);
-      console.log(decoded);
-    } else {
-      setError('Invalid email or password');
+    try {
+      const response = await axios.post(`${APIURL}/auth/signin`, {
+        email,
+        password,
+      });
+      console.log(response);
+      // const { } = response.data;
+      // localStorage.setItem('token', token);
+      // Redirect to dashboard or home page
+    } catch (err) {
+      setError(err.response.data.error);
     }
   };
 
@@ -95,43 +44,35 @@ const Signin = () => {
     <Wrapper>
       <Title>로그인</Title>
       <form onSubmit={handleSubmit}>
-        <Form__row>
-          <Label>
-            이메일
-            <StyledInput
-              data-testid='email-input'
-              type='email'
-              placeholder='이메일을 입력해주세요.'
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </Label>
-        </Form__row>
-        <Form__row>
-          <Label>
-            비밀번호
-            <StyledInput
-              data-testid='password-input'
-              type='password'
-              minlength='8'
-              placeholder='8자리 이상 비밀번호를 입력해주세요.'
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </Label>
-        </Form__row>
-        {error && <p>{error}</p>}
-        <StyledButton
-          data-testid='signin-button'
-          type='submit'
-          disabled={setError}
-        >
-          로그인
-        </StyledButton>
+        <div>
+          <label htmlFor='email'>이메일</label>
+          <input
+            data-testid='email-input'
+            type='email'
+            pattern='[a-zA-Z0-9]+[@][a-zA-Z0-9]+[.]+[a-zA-Z]+[.]*[a-zA-Z]*'
+            placeholder='이메일을 입력해주세요.'
+            required
+            id='email'
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+        <div>
+          <label htmlFor='password'>비밀번호</label>
+          <input
+            data-testid='password-input'
+            type='password'
+            minLength={8}
+            placeholder='8자리 이상 비밀번호를 입력해주세요.'
+            required
+            id='password'
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+        {error && <div>{error}</div>}
+        <button type='submit'>로그인</button>
       </form>
-
       <h5>아직 회원이 아니신가요?</h5>
       <button data-testid='signup-button'>가입하기</button>
     </Wrapper>

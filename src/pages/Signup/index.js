@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import axios from 'axios';
 
 const Wrapper = styled.div`
   width: 100%;
@@ -8,6 +9,15 @@ const Wrapper = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
+
+  h5 {
+    font-size: 12px;
+  }
+
+  a {
+    color: #3466ff;
+    margin-left: 20px;
+  }
 `;
 
 const Title = styled.h1`
@@ -16,49 +26,43 @@ const Title = styled.h1`
   margin-bottom: 32px;
 `;
 
-const Form = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
 const Form__row = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-`;
 
-const Label = styled.h4`
-  font-size: 14px;
-  margin-right: 20px;
-`;
+  label {
+    font-size: 14px;
+    margin-right: 20px;
+  }
 
-const StyledInput = styled.input`
-  width: 300px;
-  padding: 10px;
-  border: 1px solid #dadce0;
-  border-radius: 5px;
-  font-size: 14px;
-
-  &:focus {
-    outline: none;
-    background-color: #f2f5ff;
+  input {
+    width: 280px;
+    padding: 10px;
+    border: 1px solid #dadce0;
+    border-radius: 5px;
+    font-size: 14px;
+    &:focus {
+      outline: none;
+      background-color: #f2f5ff;
+    }
   }
 `;
 
 const StyledButton = styled.button`
   padding: 10px;
-  color: #fff;
-  background-color: #3466ff;
-  border: none;
+  color: #3466ff;
+  background-color: #fff;
+  border: 1px solid #3466ff;
   border-radius: 5px;
   font-size: 14px;
   cursor: pointer;
   margin-bottom: 20px;
-
-  &:hover {
+  &:active {
     color: #fff;
     background-color: #3466ff;
+    border: none;
   }
 `;
 
@@ -67,62 +71,67 @@ const Signin = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const API_URL = 'https://pre-onboarding-selection-task.shop';
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validateEmail(email) && validatePassword(password)) {
-      // Submit the form
-    } else {
-      setError('Invalid email or password');
+    try {
+      await axios.post(`${API_URL}/auth/signup`, {
+        email,
+        password,
+      });
+
+      // const {} = response.data;
+      // localStorage.setItem('token', token);
+
+      // Redirect to dashboard or home page
+    } catch (err) {
+      if (err.response) {
+        setError(err.response.data.message);
+      }
     }
-  };
-
-  const validateEmail = (email) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(String(email).toLowerCase());
-  };
-
-  const validatePassword = (password) => {
-    return password.length >= 8;
   };
 
   return (
     <Wrapper>
       <Title>회원가입</Title>
-
-      <Form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit}>
         <Form__row>
-          <Label for='email'>이메일</Label>
-          <StyledInput
+          <label htmlFor='email'>이메일</label>
+          <input
             data-testid='email-input'
-            id='email'
             type='email'
+            pattern='[a-zA-Z0-9]+[@][a-zA-Z0-9]+[.]+[a-zA-Z]+[.]*[a-zA-Z]*'
             placeholder='이메일을 입력해주세요.'
             required
+            id='email'
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </Form__row>
         <Form__row>
-          <Label for='password'>비밀번호</Label>
-          <StyledInput
+          <label htmlFor='password'>비밀번호</label>
+          <input
             data-testid='password-input'
-            id='password'
             type='password'
-            minlength='8'
+            minLength={8}
             placeholder='8자리 이상 비밀번호를 입력해주세요.'
             required
+            id='password'
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
         </Form__row>
 
-        <StyledButton data-testid='signin-button' type='submit'>
-          가입하기
-        </StyledButton>
-        {error && <p>{error}</p>}
-      </Form>
-      <h5>이미 회원이신가요?</h5>
-      <button data-testid='signup-button'>로그인하기</button>
+        {error && <div>{error}</div>}
+        <StyledButton type='submit'>가입하기</StyledButton>
+      </form>
+      <h5>
+        이미 회원이신가요?
+        <a href='#' data-testid='signup-button'>
+          로그인하기
+        </a>
+      </h5>
     </Wrapper>
   );
 };
